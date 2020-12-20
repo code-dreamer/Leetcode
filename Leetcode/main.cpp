@@ -15,12 +15,33 @@ void TimedCall(Function&& calledFunc, std::string_view funcName)
 		<< " ms" << std::endl << std::endl;
 }
 
-void ProcessAlgorithm()
+void MeasureAlgorithm()
 {
-	TimedCall([]()
+#ifdef _DEBUG
+	size_t count = 1;
+#else
+	size_t count = 4000000;
+#endif
+
+	auto testFunc = [count](std::function<void()> func)
+	{
+		for (size_t i = 0; i < count; ++i)
 		{
-			lengthOfLongestSubstring("sdsd");
-		}, "lengthOfLongestSubstring");
+			func();
+		}
+	};
+
+	const std::string str = "abcabcbb";
+
+	TimedCall([&]()
+		{
+			testFunc(std::bind(lengthOfLongestSubstring1, str));
+		}, "lengthOfLongestSubstring1");
+
+	TimedCall([&]()
+		{
+			testFunc(std::bind(lengthOfLongestSubstring2, str));
+		}, "lengthOfLongestSubstring2");
 }
 } // namespace
 
@@ -28,7 +49,7 @@ int main()
 {
 	std::cout << "Processing..." << std::endl << std::endl;
 
-	ProcessAlgorithm();
+	MeasureAlgorithm();
 
 	std::cout << "Press any key to continue..." << std::endl << std::endl;
 	
